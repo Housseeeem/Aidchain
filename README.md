@@ -1,7 +1,7 @@
 # 🧠 AidChain – Secure AI-powered Medical Data Sharing on Hedera
 
-> **AI + Blockchain for healthcare**  
-> AidChain enables hospitals and researchers to securely share anonymized medical datasets with verifiable integrity and transparent access control through **Hedera Hashgraph**.
+ **AI + Blockchain for healthcare**  
+ AidChain enables hospitals and researchers to securely share anonymized medical datasets with verifiable integrity and transparent access control through **Hedera Hashgraph**.
 
 ---
 
