@@ -1,0 +1,23 @@
+[
+  {
+    "fileId": "2",
+    "userId": 2,
+    "status": "approved",
+    "createdAt": "2025-10-21T14:35:40.195Z",
+    "approvedAt": "2025-10-21T14:36:11.419Z"
+  },
+  {
+    "fileId": "2",
+    "userId": 1,
+    "status": "approved",
+    "createdAt": "2025-10-22T09:18:04.377Z",
+    "approvedAt": "2025-10-22T19:35:29.245Z"
+  },
+  {
+    "fileId": "1",
+    "userId": 1,
+    "status": "approved",
+    "createdAt": "2025-10-22T19:34:36.419Z",
+    "approvedAt": "2025-10-22T19:35:34.765Z"
+  }
+]

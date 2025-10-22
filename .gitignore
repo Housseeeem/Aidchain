@@ -1,1 +1,5 @@
 /.idea
+/aidchain-backend/node_modules
+/aidchain-frontend/node_modules
+/aidchain-backend/.env
+/aidchain-frontend/.env
