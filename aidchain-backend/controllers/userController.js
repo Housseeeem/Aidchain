@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { default: mongoose } = require('mongoose');
+const { User } = require('../collections/User');
 
 const users = []; // dummy in-memory store
 
@@ -10,11 +12,22 @@ const users = []; // dummy in-memory store
 // })();
 
 const register = async (req, res) => {
-    const { username, password } = req.body;
-    const hashed = await bcrypt.hash(password, 10);
-    const user = { id: users.length + 1, username, password: hashed };
-    users.push(user);
-    res.json({ message: 'User registered', userId: user.id });
+    try {
+        const { username, password } = req.body;
+        const hashed = await bcrypt.hash(password, 10);
+        const user = { id: users.length + 1, username, password: hashed };
+
+        const result = await User.insertOne(user)
+        if (!result) {
+            throw new Error("Error creating user")
+        }
+        console.log("User Created.")
+        return res.status(200).send("Done")
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send("Internal Server Error")
+    }
+
 };
 
 const login = async (req, res) => {
