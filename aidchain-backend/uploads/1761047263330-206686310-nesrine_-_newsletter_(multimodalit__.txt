@@ -1,9 +1,0 @@
-nesrine -> newsletter (multimodalité)
-khawla -> agent autonome détecter les menaces vulnérabilité et alerte les utilisateurs. (0dev)
-feres -> ia agent, qui te permet d'utiliser la charte d'orange.
-Aziz -> réseau wifi intelligent, analyser la performance d'un réseau internet et 
-mohamed rayen -> ai agent qui crée des interface via prompts 
-karim -> architecture multi agent: ( input nlp, output requete sql ) intégré dans une web
-aziz -> serveur ncp intégré avec GitHub colpilot qui translate le nlp on requete sql
-moi -> prompt, qui permet d'automatiser la migration et une interface web qui permet de créer des composants angular via graphique (pas de code)
-noura, feres, khawla et aziz mouch hachicha.

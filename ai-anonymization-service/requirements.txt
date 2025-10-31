@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+transformers
+spacy
+pdfplumber
+python-multipart
