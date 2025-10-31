@@ -30,7 +30,7 @@ AidChain combines **AI-driven anonymization** and **Hedera blockchain integratio
 | **Storage Manager** | Encrypts & uploads datasets to MinIO/S3 |
 | **Hedera Adapter** | Records hashes & issues access tokens on Hedera Testnet |
 | **Access API** | Manages permissions, logs and data provenance |
-| **Frontend** | Simple NextJs interface for uploading, viewing transactions, and granting access |
+| **Frontend** | Simple React interface for uploading, viewing transactions, and granting access |
 
 ---
 
@@ -39,8 +39,8 @@ AidChain combines **AI-driven anonymization** and **Hedera blockchain integratio
 | Layer | Technology |
 |--------|-------------|
 | **Frontend** | React + TypeScript + Tailwind |
-| **Backend** | FastAPI (Python) & express | 
-| **Database** | MongDB |
+| **Backend** | FastAPI (Python) |
+| **Database** | PostgreSQL |
 | **Storage** | MinIO (S3-compatible, encrypted) |
 | **Blockchain** | Hedera HCS + HTS |
 | **AI** | HuggingFace Transformers + spaCy med7 |
@@ -56,6 +56,10 @@ AidChain combines **AI-driven anonymization** and **Hedera blockchain integratio
 #### git clone https://github.com/Housseeeem/AidChain.git
 #### cd AidChain
 #### cp .env.example .env
+### 2️⃣ Run the stack
+#### docker compose up --build
+#### The backend (FastAPI) runs at http://localhost:8000
+#### Frontend (React) runs at http://localhost:5173
 
 ## 🧠 Core Features
 | Feature | Description |
