@@ -2,47 +2,33 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 import { 
   CheckCircle, 
-  Circle, 
   ArrowRight, 
   ArrowLeft,
   FileText,
-  Server,
   Upload as UploadIcon
 } from "lucide-react"
+import { useRequest } from "@/contexts/request-context"
 
 // Import step components
 import { MetadataStep } from "@/components/upload/metadata-step"
-import { HostingStep } from "@/components/upload/hosting-step"
 import { FilesStep } from "@/components/upload/files-step"
 import { ReviewStep } from "@/components/upload/review-step"
 
 export interface UploadData {
   // Metadata
-  name: string
-  category: string
+  title: string
   description: string
+  category: string
   tags: string[]
-  accessType: "free" | "paid"
-  price?: number
-  
-  // Hosting
-  hostingPlan: string
-  region: string
-  retention: string
+  price: number
   
   // Files
   files: File[]
   totalSize: number
-  
-  // Additional metadata
-  license: string
-  dataFormat: string
-  updateFrequency: string
 }
 
 const steps = [
@@ -54,18 +40,12 @@ const steps = [
   },
   {
     id: 2,
-    title: "Hosting Options",
-    description: "Choose your hosting plan",
-    icon: Server
-  },
-  {
-    id: 3,
     title: "Upload Files",
     description: "Add your dataset files",
     icon: UploadIcon
   },
   {
-    id: 4,
+    id: 3,
     title: "Review & Submit",
     description: "Final review and submission",
     icon: CheckCircle
@@ -73,21 +53,17 @@ const steps = [
 ]
 
 export default function UploadPage() {
+  const { upload } = useRequest()
   const [currentStep, setCurrentStep] = useState(1)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadData, setUploadData] = useState<UploadData>({
-    name: "",
-    category: "",
+    title: "",
     description: "",
+    category: "",
     tags: [],
-    accessType: "free",
-    hostingPlan: "",
-    region: "",
-    retention: "",
+    price: 0,
     files: [],
-    totalSize: 0,
-    license: "",
-    dataFormat: "",
-    updateFrequency: ""
+    totalSize: 0
   })
 
   const updateUploadData = (data: Partial<UploadData>) => {
@@ -109,15 +85,54 @@ export default function UploadPage() {
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return uploadData.name && uploadData.category && uploadData.description
+        return uploadData.title && uploadData.description
       case 2:
-        return uploadData.hostingPlan && uploadData.region
-      case 3:
         return uploadData.files.length > 0
-      case 4:
+      case 3:
         return true
       default:
         return false
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (uploadData.files.length === 0) {
+      alert('Please select at least one file to upload')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      // Upload the first file (for now, since API expects single file)
+      const response = await upload({
+        datasetName: uploadData.title,
+        description: uploadData.description,
+        access: uploadData.price === 0, // true for free, false for paid
+        price: uploadData.price,
+        file: uploadData.files[0]
+      })
+      
+      if (response.success) {
+        alert('Dataset uploaded successfully!')
+        // Reset form
+        setUploadData({
+          title: "",
+          description: "",
+          category: "",
+          tags: [],
+          price: 0,
+          files: [],
+          totalSize: 0
+        })
+        setCurrentStep(1)
+      } else {
+        alert('Upload failed')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Upload failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -126,10 +141,8 @@ export default function UploadPage() {
       case 1:
         return <MetadataStep data={uploadData} updateData={updateUploadData} />
       case 2:
-        return <HostingStep data={uploadData} updateData={updateUploadData} />
-      case 3:
         return <FilesStep data={uploadData} updateData={updateUploadData} />
-      case 4:
+      case 3:
         return <ReviewStep data={uploadData} updateData={updateUploadData} />
       default:
         return null
@@ -215,7 +228,7 @@ export default function UploadPage() {
           {currentStep < steps.length ? (
             <Button
               onClick={nextStep}
-              disabled={true ||!canProceed()}
+              disabled={!canProceed()}
               className="flex items-center gap-2"
             >
               Next
@@ -223,15 +236,11 @@ export default function UploadPage() {
             </Button>
           ) : (
             <Button
-              onClick={() => {
-                // Handle final submission
-                console.log("Submitting dataset:", uploadData)
-                alert("Dataset submitted successfully!")
-              }}
-              disabled={!canProceed()}
+              onClick={handleSubmit}
+              disabled={!canProceed() || isSubmitting}
               className="flex items-center gap-2"
             >
-              Submit Dataset
+              {isSubmitting ? 'Uploading...' : 'Submit Dataset'}
               <CheckCircle className="h-4 w-4" />
             </Button>
           )}

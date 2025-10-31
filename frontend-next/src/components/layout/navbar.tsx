@@ -19,7 +19,7 @@ export function Navbar() {
     document.documentElement.classList.toggle("dark");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logout();
   };
 

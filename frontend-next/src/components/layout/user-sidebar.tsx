@@ -1,61 +1,63 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Logo } from "@/components/ui/logo"
-import { useAuth } from "@/contexts/auth-context"
-import { 
-  BarChart3, 
-  Upload, 
-  Settings, 
-  LogOut, 
-  Database,
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Logo } from "@/components/ui/logo";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  BarChart3,
+  Upload,
+  Settings,
+  LogOut,
   Home,
-  User
-} from "lucide-react"
+  CheckCircle,
+} from "lucide-react";
 
 const sidebarItems = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    icon: BarChart3
+    icon: BarChart3,
   },
   {
     title: "Upload Dataset",
     href: "/upload",
-    icon: Upload
+    icon: Upload,
   },
-
+  {
+    title: "Approvals",
+    href: "/approvals",
+    icon: CheckCircle,
+  },
   {
     title: "Settings",
     href: "/settings",
-    icon: Settings
-  }
-]
+    icon: Settings,
+  },
+];
 
 export function UserSidebar() {
-  const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const getInitials = (username: string) => {
     return username
       .split(" ")
-      .map(name => name.charAt(0))
+      .map((name) => name.charAt(0))
       .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const handleLogout = () => {
-    logout()
-  }
+    logout();
+  };
 
   return (
     <div className="w-64 bg-background border-r flex flex-col">
-
       {/* User Info */}
       {user && (
         <div className="p-4 border-b">
@@ -66,7 +68,9 @@ export function UserSidebar() {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">{user.username}</p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user.email}
+              </p>
             </div>
           </div>
         </div>
@@ -76,7 +80,7 @@ export function UserSidebar() {
       <nav className="flex-1 p-4">
         <div className="space-y-2">
           {sidebarItems.map((item) => {
-            const isActive = pathname === item.href
+            const isActive = pathname === item.href;
             return (
               <Link key={item.href} href={item.href}>
                 <Button
@@ -90,7 +94,7 @@ export function UserSidebar() {
                   {item.title}
                 </Button>
               </Link>
-            )
+            );
           })}
         </div>
       </nav>
@@ -103,8 +107,8 @@ export function UserSidebar() {
             Back to Home
           </Button>
         </Link>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="w-full justify-start gap-3 text-destructive hover:text-destructive"
           onClick={handleLogout}
         >
@@ -113,5 +117,5 @@ export function UserSidebar() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

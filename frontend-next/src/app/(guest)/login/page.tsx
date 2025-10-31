@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/contexts/auth-context"
+import { useRequest } from "@/contexts/request-context"
 import { Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
@@ -15,28 +16,33 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const { login } = useAuth()
+  const { auth } = useRequest()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
     
     try {
-      // Simulate API call - replace with actual authentication
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await auth({
+        email,
+        password
+      })
       
-      // Mock user data - replace with actual API response
+      // Create user object for auth context
       const userData = {
         email: email,
-        username: email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1),
+        username: response.firstName || email.split('@')[0],
         avatar_img: `https://api.dicebear.com/7.x/initials/svg?seed=${email}`
       }
       
-      login(userData)
+      login(userData, response.jwt)
       router.push('/dashboard')
     } catch (error) {
-      console.error("Login failed:", error)
+      setError(error instanceof Error ? error.message : 'Login failed')
     } finally {
       setIsLoading(false)
     }
@@ -53,6 +59,11 @@ export default function LoginPage() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

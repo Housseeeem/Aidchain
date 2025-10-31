@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { 
   Search, 
-  Filter, 
   Download, 
   Eye, 
   Calendar, 
@@ -17,14 +16,41 @@ import {
   Building,
   Star
 } from "lucide-react"
+import { useRequest, Dataset } from "@/contexts/request-context"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function BrowsePage() {
+  const { getDatasets, requestDataset } = useRequest()
+  const { jwt, isLoading: authLoading } = useAuth()
+  const [datasets, setDatasets] = useState<Dataset[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("")
   const [selectedPrice, setSelectedPrice] = useState("")
   const [selectedDate, setSelectedDate] = useState("")
 
-  const datasets = [
+  useEffect(() => {
+    const fetchDatasets = async () => {
+      if (authLoading) {
+        return; // Wait for auth to load
+      }
+
+      try {
+        // For public browse, we'll use a mock JWT if user is not authenticated
+        const token = jwt || "public_access_token"
+        const datasetsData = await getDatasets(token)
+        setDatasets(datasetsData)
+      } catch (error) {
+        console.error('Failed to fetch datasets:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDatasets()
+  }, [getDatasets, jwt, authLoading])
+
+  const mockDatasets = [
     {
       id: 1,
       title: "Cardiac MRI Imaging Dataset 2024",
@@ -111,16 +137,28 @@ export default function BrowsePage() {
     }
   ]
 
-  const categories = ["All", "Cardiology", "Neurology", "Radiology", "Genomics", "Endocrinology", "Pediatrics"]
+  const categories = ["All", ...Array.from(new Set(datasets.map(d => d.datasetName.split(' ')[0])))] // Extract category from name for now
   const priceRanges = ["All", "Free", "$1-100", "$101-500", "$500+"]
   const dateRanges = ["All", "Last 7 days", "Last 30 days", "Last 3 months", "Last year"]
 
+  const handleRequestDataset = async (datasetId: string) => {
+    try {
+      const response = await requestDataset({ datasetId })
+      if (response.success) {
+        alert('Dataset request submitted successfully!')
+      }
+    } catch (error) {
+      console.error('Failed to request dataset:', error)
+      alert('Failed to submit dataset request')
+    }
+  }
+
   const filteredDatasets = datasets.filter(dataset => {
-    const matchesSearch = dataset.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         dataset.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         dataset.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    const matchesSearch = dataset.datasetName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         dataset.description.toLowerCase().includes(searchQuery.toLowerCase())
     
-    const matchesCategory = !selectedCategory || selectedCategory === "All" || dataset.category === selectedCategory
+    const datasetCategory = dataset.datasetName.split(' ')[0] // Extract category from name
+    const matchesCategory = !selectedCategory || selectedCategory === "All" || datasetCategory === selectedCategory
     
     const matchesPrice = !selectedPrice || selectedPrice === "All" || 
                         (selectedPrice === "Free" && dataset.price === 0) ||
@@ -130,6 +168,19 @@ export default function BrowsePage() {
     
     return matchesSearch && matchesCategory && matchesPrice
   })
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading datasets...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -210,9 +261,9 @@ export default function BrowsePage() {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <CardTitle className="text-lg mb-2">{dataset.title}</CardTitle>
+                  <CardTitle className="text-lg mb-2">{dataset.datasetName}</CardTitle>
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline">{dataset.category}</Badge>
+                    <Badge variant="outline">{dataset.datasetName.split(' ')[0]}</Badge>
                     {dataset.price === 0 ? (
                       <Badge variant="secondary">Free</Badge>
                     ) : (
@@ -222,7 +273,7 @@ export default function BrowsePage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{dataset.rating}</span>
+                  <span className="text-sm font-medium">4.5</span> {/* Mock rating */}
                 </div>
               </div>
               <CardDescription className="line-clamp-3">
@@ -234,22 +285,18 @@ export default function BrowsePage() {
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Building className="h-4 w-4" />
-                    {dataset.organization}
+                    {dataset.ownerUsername}
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    {new Date(dataset.uploadDate).toLocaleDateString()}
+                    {new Date().toLocaleDateString()} {/* Mock date for now */}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="text-center">
-                    <div className="font-medium">{dataset.size}</div>
+                    <div className="font-medium">{dataset.sizeFile}</div>
                     <div className="text-muted-foreground">Size</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-medium">{dataset.records}</div>
-                    <div className="text-muted-foreground">Records</div>
                   </div>
                   <div className="text-center">
                     <div className="font-medium">{dataset.downloads}</div>
@@ -258,7 +305,8 @@ export default function BrowsePage() {
                 </div>
 
                 <div className="flex flex-wrap gap-1">
-                  {dataset.tags.map((tag, index) => (
+                  {/* Mock tags based on dataset name */}
+                  {dataset.datasetName.toLowerCase().split(' ').slice(0, 3).map((tag, index) => (
                     <Badge key={index} variant="secondary" className="text-xs">
                       {tag}
                     </Badge>
@@ -270,7 +318,11 @@ export default function BrowsePage() {
                     <Eye className="h-4 w-4 mr-2" />
                     Preview
                   </Button>
-                  <Button size="sm" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleRequestDataset(dataset.datasetId)}
+                  >
                     {dataset.price === 0 ? (
                       <>
                         <Download className="h-4 w-4 mr-2" />
