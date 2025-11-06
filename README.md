@@ -38,13 +38,12 @@ AidChain combines **AI-driven anonymization** and **Hedera blockchain integratio
 
 | Layer | Technology |
 |--------|-------------|
-| **Frontend** | React + TypeScript + Tailwind |
+| **Frontend** | Nextjs |
 | **Backend** | FastAPI (Python) & express | 
 | **Database** | MongDB |
 | **Storage** | MinIO (S3-compatible, encrypted) |
 | **Blockchain** | Hedera HCS + HTS |
 | **AI** | HuggingFace Transformers + spaCy med7 |
-| **Infra** | Docker + Docker Compose |
 
 
 
